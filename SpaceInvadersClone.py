@@ -5,9 +5,11 @@ Spaceship -> Icons made by <a href="https://www.flaticon.com/authors/photo3idea-
 Enemy -> Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
 '''
 
+# Modules for game functionalities
 import pygame
 from pygame import mixer
 
+# Modules for additional functionalities
 import random
 import math
 
@@ -23,14 +25,14 @@ done = False
 
 # Title and Icon
 pygame.display.set_caption('Space Invader Clone')
-icon = pygame.image.load('SolarSystemIcon.png')
+icon = pygame.image.load('Images/SolarSystemIcon.png')
 pygame.display.set_icon(icon)
 
 # Background
-background = pygame.image.load('Background.jpg')
+background = pygame.image.load('Images/Background.jpg')
 
 # Background Sound
-mixer.music.load('MusicForLvl.wav')
+mixer.music.load('Sounds/MusicForLvl.wav')
 mixer.music.play(-1)
 
 # Keeps the score
@@ -53,7 +55,7 @@ def gameOver():
     screen.blit(overText, (200, 250))
 
 # Player
-playerIcon = pygame.image.load('spaceship.png')
+playerIcon = pygame.image.load('Images/spaceship.png')
 # These variables control the position of the player on the screen
 playerX = 370
 playerY = 480
@@ -73,7 +75,7 @@ enemyY_change = []
 numEnemies = 6
 
 for i in range(numEnemies):
-    enemyIcon.append(pygame.image.load('ufo.png'))
+    enemyIcon.append(pygame.image.load('Images/ufo.png'))
     # These variables control the position of the enemy ship
     enemyX.append(random.randint(5, 729))
     enemyY.append(random.randint(5, 225))
@@ -84,7 +86,7 @@ def enemy(x, y, i):
     screen.blit(enemyIcon[i], (x, y))
 
 # Bullet
-bulletIcon = pygame.image.load('bullet.png')
+bulletIcon = pygame.image.load('Images/bullet.png')
 bulletX = 0
 bulletY = 480
 bulletY_change = 5
@@ -107,6 +109,7 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
 while not done:
     # RGB for the background of the screen
     screen.fill((105, 105, 105, 0.2))
+
     # Background Image
     screen.blit(background, (0, 0))
 
@@ -123,7 +126,7 @@ while not done:
             if event.key == pygame.K_SPACE:
                 # Avoids bullets from refreshing mid flight
                 if bulletState is 'ready':
-                    bulletSound = mixer.Sound('151022__bubaproducer__laser-shot-silenced.wav')
+                    bulletSound = mixer.Sound('Sounds/bulletSound.wav')
                     bulletSound.play()
                     # Get the location of the ship to keep the bullet fixed on x axis
                     bulletX = playerX
@@ -168,7 +171,7 @@ while not done:
         # Check for collision
         collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
         if collision:
-            explosion = mixer.Sound('EnemyKill.wav')
+            explosion = mixer.Sound('Sounds/EnemyDeath.wav')
             explosion.play()
             bulletY = 480
             bulletState = 'ready'
@@ -189,8 +192,7 @@ while not done:
         bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
-
-
+    # Updates the location of the user
     player(playerX, playerY)
 
     # Display Current Score
