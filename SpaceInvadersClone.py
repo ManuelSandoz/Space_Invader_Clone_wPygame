@@ -152,7 +152,7 @@ while not done:
 
     # Enemy Movement
     for i in range(numEnemies):
-        #Game Over
+        #Check the position of enemies and display game over if necessary. 
         if enemyY[i] > 440:
             for j in range(numEnemies):
                 enemyY[j] = 2000
@@ -182,7 +182,7 @@ while not done:
         enemy(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
-    # If the bullet goes out of bounds 'Load a new bullet'
+    # If the bullet goes out of bounds "Load" a new bullet
     if bulletY <= 0:
         bulletY = 480
         bulletState = 'ready'
