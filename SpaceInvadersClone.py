@@ -16,6 +16,7 @@ import math
 # Clases for the project
 from Utils.Button import Button
 from Utils.ScreenObject import ScreenObject
+from Utils.Bullet import Bullet
 
 # Initiates Pygame*
 pygame.init()
@@ -35,7 +36,7 @@ pygame.display.set_icon(icon)
 # Loads Background Img
 background = pygame.image.load('Images/Background.jpg')
 
-# Background Sound
+# Background Sound (Uncomment line 40-41 for background music)
 # mixer.music.load('Sounds/MusicForLvl.wav')
 # mixer.music.play(-1)
 
@@ -63,57 +64,26 @@ replayButton = Button(270, 350, 100, 50, (0,0,0), 'Replay')
 quitButton = Button(430, 350, 125, 50, (0,0,0), 'Quit Game')
 
 # Player
-# These variables control the position of the player on the screen
-playerX = 370
-playerY = 480
-playerX_change = 0
-
-player = ScreenObject(playerX, playerY, playerX_change, 0, 'Images/spaceship.png')
+player = ScreenObject(370, 480, 0, 0, 'Images/spaceship.png')
 
 # Enemy
-enemyIcon = []
-enemyX = []
-enemyY = []
-enemyX_change = []
-enemyY_change = []
 numEnemies = 6
+enemies = []
 
 for i in range(numEnemies):
-    enemyIcon.append(pygame.image.load('Images/ufo.png'))
-    # These variables control the position of the enemy ship
-    enemyX.append(random.randint(5, 729))
-    enemyY.append(random.randint(5, 225))
-    enemyX_change.append(1.5)
-    enemyY_change.append(30)
-
-def enemy(x, y, i):
-    screen.blit(enemyIcon[i], (x, y))
+    enemies.append(ScreenObject(
+        random.randint(5, 729),
+        random.randint(5, 225),
+        1.5,
+        30,
+        'Images/ufo.png'
+    ))
 
 # Bullet
-bulletIcon = pygame.image.load('Images/bullet.png')
-bulletX = 0
-bulletY = 480
-bulletY_change = 5
-bulletState = 'ready'
-
-def bullet(x, y):
-    global bulletState
-    bulletState = 'fire'
-
-    screen.blit(bulletIcon, (x + 16, y + 10))
-
-# Calculate Collinsion
-def isCollision(enemyX, enemyY, bulletX, bulletY):
-    distance = math.sqrt((math.pow(enemyX - bulletX, 2)) + (math.pow(enemyY - bulletY, 2)))
-    if distance < 27:
-        return True
-    return False
+bullet = Bullet(0, 480, 0, 5, 'Images/bullet.png', 'ready')
 
 # Game Loop
 while not done:
-    # RGB for the background of the screen
-    # screen.fill((105, 105, 105, 0.2))
-
     # Background Image
     screen.blit(background, (0, 0))
 
@@ -127,21 +97,21 @@ while not done:
         # Check if left or right is pressed
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -4
+                player.changeX = -4
             if event.key == pygame.K_RIGHT:
-                playerX_change = 4
+                player.changeX = 4
             if event.key == pygame.K_SPACE:
                 # Avoids bullets from refreshing mid flight
-                if bulletState == 'ready':
+                if bullet.state == 'ready':
                     bulletSound = mixer.Sound('Sounds/bulletSound.wav')
                     bulletSound.play()
                     # Get the location of the ship to keep the bullet fixed on x axis
-                    bulletX = playerX
-                    bullet(bulletX, bulletY)
+                    bullet.x = player.x
+                    bullet.drawBullet(screen)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                playerX_change = 0
+                player.changeX = 0
         
         mousePos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
@@ -170,68 +140,66 @@ while not done:
                 pygame.quit()
                 quit()
 
-
     # Updating the position of the player
-    playerX += playerX_change
+    player.x += player.changeX
 
     # Keeping the ship within boundaries of x axis in screen
-    if playerX > 730:
-        playerX = 730
-    elif playerX < 5:
-        playerX = 5
-    # Keeping the ship within boundaries for y axis of the screen
-    if playerY > 535:
-        playerY = 535
-    elif playerY < 5:
-        playerY = 5
+    if player.x > 730:
+        player.x = 730
+    elif player.x < 5:
+        player.x = 5
+    # Keeping the ship within boundaries for y axis of the screen (This will be used when the player gets vert movement)
+    # if player.y > 535:
+    #     player.y = 535
+    # elif player.y < 5:
+    #     player.y = 5
 
     # Enemy Movement
     for i in range(numEnemies):
         #Check the position of enemies and display game over if necessary. 
-        if enemyY[i] > 440:
+        if enemies[i].y > 440:
             for j in range(numEnemies):
-                enemyY[j] = 2000
+                enemies[j].y = 2000
 
             replayButton.drawButton(screen, (255,255,255))
             quitButton.drawButton(screen, (255,255,255))
             gameOver()
-
             break
 
-        enemyX[i] += enemyX_change[i]
-        if enemyX[i] <= 5:
-            enemyX_change[i] = 1.5
-            enemyY[i] += enemyY_change[i]
-        elif enemyX[i] >= 730:
-            enemyX_change[i] = -1.5
-            enemyY[i] += enemyY_change[i]
+        enemies[i].x += enemies[i].changeX
+        if enemies[i].x <= 5:
+            enemies[i].changeX = 1.5
+            enemies[i].y += enemies[i].changeY
+        elif enemies[i].x >= 730:
+            enemies[i].changeX = -1.5
+            enemies[i].y += enemies[i].changeY
 
         # Check for collision
-        collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+        collision = bullet.collision(enemies[i].x, enemies[i].y)
         if collision:
             explosion = mixer.Sound('Sounds/EnemyDeath.wav')
             explosion.play()
-            bulletY = 480
-            bulletState = 'ready'
+            bullet.y = 480
+            bullet.state = 'ready'
             currentScore += 1
-            enemyX[i] = random.randint(5, 730)
-            enemyY[i] = random.randint(5, 225)
+            enemies[i].x = random.randint(5, 730)
+            enemies[i].y = random.randint(5, 225)
 
-        enemy(enemyX[i], enemyY[i], i)
+        enemies[i].draw(screen)
 
     # Bullet Movement
     # If the bullet goes out of bounds "Load" a new bullet
-    if bulletY <= 0:
-        bulletY = 480
-        bulletState = 'ready'
+    if bullet.y <= 0:
+        bullet.y = 480
+        bullet.state = 'ready'
 
     # Controls trajectory of bullet
-    if bulletState == 'fire':
-        bullet(bulletX, bulletY)
-        bulletY -= bulletY_change
+    if bullet.state == 'fire':
+        bullet.drawBullet(screen)
+        bullet.y -= bullet.changeY
 
     # Updates the location of the user
-    player.draw(screen, playerX, playerY)
+    player.draw(screen)
 
     # Display Current Score
     showScore(textX, textY)
