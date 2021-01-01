@@ -13,6 +13,9 @@ from pygame import mixer
 import random
 import math
 
+# Importing
+from Utils.Button import Button
+
 # Initiates Pygame*
 pygame.init()
 mixer.init()
@@ -28,12 +31,12 @@ pygame.display.set_caption('Space Invader Clone')
 icon = pygame.image.load('Images/SolarSystemIcon.png')
 pygame.display.set_icon(icon)
 
-# Background
+# Loads Background Img
 background = pygame.image.load('Images/Background.jpg')
 
 # Background Sound
-mixer.music.load('Sounds/MusicForLvl.wav')
-mixer.music.play(-1)
+# mixer.music.load('Sounds/MusicForLvl.wav')
+# mixer.music.play(-1)
 
 # Keeps the score
 currentScore = 0
@@ -105,6 +108,12 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
         return True
     return False
 
+
+# ===========================TESTING THE BUTTON CLASS ====================
+
+replayButton = Button(270, 350, 100, 50, (0,0,0), 'Replay')
+quitButton = Button(430, 350, 125, 50, (0,0,0), 'Quit Game')
+
 # Game Loop
 while not done:
     # RGB for the background of the screen
@@ -113,9 +122,17 @@ while not done:
     # Background Image
     screen.blit(background, (0, 0))
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~Making adjustments to the buttons~~~~~~
+    gameOver()
+    replayButton.drawButton(screen, (255,255,255))
+    quitButton.drawButton(screen, (255,255,255))
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     for event in pygame.event.get():
+        # If user clicks on the 'x' close program
         if event.type == pygame.QUIT:
             done = True
+            pygame.quit()
+            quit()
 
         # Check if left or right is pressed
         if event.type == pygame.KEYDOWN:
@@ -125,7 +142,7 @@ while not done:
                 playerX_change = 4
             if event.key == pygame.K_SPACE:
                 # Avoids bullets from refreshing mid flight
-                if bulletState is 'ready':
+                if bulletState == 'ready':
                     bulletSound = mixer.Sound('Sounds/bulletSound.wav')
                     bulletSound.play()
                     # Get the location of the ship to keep the bullet fixed on x axis
@@ -135,6 +152,23 @@ while not done:
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
+        
+        mousePos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEMOTION:
+            if replayButton.mouseHover(mousePos):
+                replayButton.color = (255,255,255)
+                replayButton.textColor = (0,0,0)
+            else:
+                replayButton.color = (0,0,0)
+                replayButton.textColor = (255,255,255)
+
+            if quitButton.mouseHover(mousePos):
+                quitButton.color = (255,255,255)
+                quitButton.textColor = (0,0,0)
+            else:
+                quitButton.color = (0,0,0)
+                quitButton.textColor = (255,255,255)
+
 
     # Updating the position of the player
     playerX += playerX_change
@@ -179,7 +213,7 @@ while not done:
             enemyX[i] = random.randint(5, 730)
             enemyY[i] = random.randint(5, 225)
 
-        enemy(enemyX[i], enemyY[i], i)
+        # enemy(enemyX[i], enemyY[i], i)``````````````````
 
     # Bullet Movement
     # If the bullet goes out of bounds "Load" a new bullet
@@ -188,7 +222,7 @@ while not done:
         bulletState = 'ready'
 
     # Controls trajectory of bullet
-    if bulletState is 'fire':
+    if bulletState == 'fire':
         bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
