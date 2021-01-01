@@ -13,8 +13,9 @@ from pygame import mixer
 import random
 import math
 
-# Importing
+# Clases for the project
 from Utils.Button import Button
+from Utils.ScreenObject import ScreenObject
 
 # Initiates Pygame*
 pygame.init()
@@ -57,17 +58,17 @@ def gameOver():
     overText = overFont.render("GAME OVER", True, (255, 255, 255))
     screen.blit(overText, (200, 250))
 
+# Buttons for the game over message
+replayButton = Button(270, 350, 100, 50, (0,0,0), 'Replay')
+quitButton = Button(430, 350, 125, 50, (0,0,0), 'Quit Game')
+
 # Player
-playerIcon = pygame.image.load('Images/spaceship.png')
 # These variables control the position of the player on the screen
 playerX = 370
 playerY = 480
 playerX_change = 0
 
-# This function will control the movement of the player
-def player(x, y):
-    # Blit draws the image on the screen
-    screen.blit(playerIcon, (x, y))
+player = ScreenObject(playerX, playerY, playerX_change, 0, 'Images/spaceship.png')
 
 # Enemy
 enemyIcon = []
@@ -108,25 +109,14 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
         return True
     return False
 
-
-# ===========================TESTING THE BUTTON CLASS ====================
-
-replayButton = Button(270, 350, 100, 50, (0,0,0), 'Replay')
-quitButton = Button(430, 350, 125, 50, (0,0,0), 'Quit Game')
-
 # Game Loop
 while not done:
     # RGB for the background of the screen
-    screen.fill((105, 105, 105, 0.2))
+    # screen.fill((105, 105, 105, 0.2))
 
     # Background Image
     screen.blit(background, (0, 0))
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~Making adjustments to the buttons~~~~~~
-    gameOver()
-    replayButton.drawButton(screen, (255,255,255))
-    quitButton.drawButton(screen, (255,255,255))
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     for event in pygame.event.get():
         # If user clicks on the 'x' close program
         if event.type == pygame.QUIT:
@@ -168,6 +158,17 @@ while not done:
             else:
                 quitButton.color = (0,0,0)
                 quitButton.textColor = (255,255,255)
+        
+        # This cheks if the mouse button is pressed down on a button
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if replayButton.mouseHover(mousePos):
+                # pass for now
+                pass
+
+            if quitButton.mouseHover(mousePos):
+                done = True
+                pygame.quit()
+                quit()
 
 
     # Updating the position of the player
@@ -191,7 +192,10 @@ while not done:
             for j in range(numEnemies):
                 enemyY[j] = 2000
 
+            replayButton.drawButton(screen, (255,255,255))
+            quitButton.drawButton(screen, (255,255,255))
             gameOver()
+
             break
 
         enemyX[i] += enemyX_change[i]
@@ -213,7 +217,7 @@ while not done:
             enemyX[i] = random.randint(5, 730)
             enemyY[i] = random.randint(5, 225)
 
-        # enemy(enemyX[i], enemyY[i], i)``````````````````
+        enemy(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
     # If the bullet goes out of bounds "Load" a new bullet
@@ -227,7 +231,7 @@ while not done:
         bulletY -= bulletY_change
 
     # Updates the location of the user
-    player(playerX, playerY)
+    player.draw(screen, playerX, playerY)
 
     # Display Current Score
     showScore(textX, textY)
