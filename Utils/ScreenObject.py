@@ -8,5 +8,5 @@ class ScreenObject():
     self.changeY = changeY
     self.icon = pygame.image.load(iconPath)
 
-  def draw(self, screen, x, y):
-    screen.blit(self.icon, (x,y))
+  def draw(self, screen):
+    screen.blit(self.icon, (self.x, self.y))
