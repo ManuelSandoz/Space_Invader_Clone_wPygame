@@ -37,25 +37,6 @@ done = False
 scoreFont = pygame.font.Font('freesansbold.ttf', 32)
 gameOverFont = pygame.font.Font('freesansbold.ttf', 64)
 
-def displayText(surface, font, message, messageColor, location):
-  """
-  This function will blit a message on the screen when called
-
-  Args:
-
-      surface (pygame.display): This is the screen in which the message will be rendered
-      
-      font (pygame.font): Object containing the font and the size for the message to be displayed
-      
-      message (string): String containing the message to be displayed
-      
-      messageColor (int touple): Touple containing the RGB value for the color of the text
-      
-      location (int touple): Touple containing the coordinates for in which the message will be displayed (x, y)
-  """  
-  text = font.render(message, True, messageColor)
-  surface.blit(text, location)
-
 # Buttons for the game over message
 replayButton = Button(270, 350, 100, 50, (0, 0, 0), 'Replay')
 quitButton = Button(430, 350, 125, 50, (0, 0, 0), 'Quit Game')
@@ -79,8 +60,41 @@ for i in range(numEnemies):
 # Create Bullet
 bullet = Bullet(0, 480, 0, 5, 'Images/bullet.png', 'ready')
 
+def displayText(surface, font, message, messageColor, location):
+  """
+  This function will blit a message on the screen when called
+
+  Args:
+
+      surface (pygame.display): This is the screen in which the message will be rendered
+      
+      font (pygame.font): Object containing the font and the size for the message to be displayed
+      
+      message (string): String containing the message to be displayed
+      
+      messageColor (int touple): Touple containing the RGB value for the color of the text
+      
+      location (int touple): Touple containing the coordinates for in which the message will be displayed (x, y)
+  """  
+  text = font.render(message, True, messageColor)
+  surface.blit(text, location)
+
+def gameOver():
+  displayText(screen, gameOverFont, 'GAME OVER', (255,255,255), (200, 250))
+  replayButton.drawButton(screen, (255, 255, 255))
+  quitButton.drawButton(screen, (255, 255, 255))
+
+def resetGame():
+  global currentScore
+  currentScore = 0
+  for i in range(numEnemies):
+    enemies[i].x = random.randint(5, 729)
+    enemies[i].y = random.randint(5, 225)
+  
+
 # Game Loop
 while not done:
+  pygame.time.delay(5)
   # Set Background Image
   screen.blit(background, (0, 0))
 
@@ -128,8 +142,7 @@ while not done:
     # Check if a button is clicked
     if event.type == pygame.MOUSEBUTTONDOWN:
       if replayButton.mouseHover(mousePos):
-        # pass for now
-        pass
+        resetGame()
 
       if quitButton.mouseHover(mousePos):
         done = True
@@ -148,18 +161,15 @@ while not done:
     # Check the position of enemies and display game over if necessary.
     if enemies[i].y > 440:
       for j in range(numEnemies):
-        enemies[j].y = 2000 # <-- pretty sure there is a better way to achieve this effect
-
-      replayButton.drawButton(screen, (255, 255, 255))
-      quitButton.drawButton(screen, (255, 255, 255))
-      displayText(screen, gameOverFont, 'GAME OVER', (255,255,255), (200, 250))
+        enemies[j].y = 700 # <-- pretty sure there is a better way to achieve this effect
+        gameOver()
       break
 
     enemies[i].x += enemies[i].changeX
-    if enemies[i].x <= 5:
+    if enemies[i].x <= 5 and enemies[i].y <= 700:
       enemies[i].changeX = 1.5
       enemies[i].y += enemies[i].changeY
-    elif enemies[i].x >= 730:
+    elif enemies[i].x >= 730 and enemies[i].y <= 700:
       enemies[i].changeX = -1.5
       enemies[i].y += enemies[i].changeY
 
