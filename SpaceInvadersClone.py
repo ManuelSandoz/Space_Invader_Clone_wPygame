@@ -23,7 +23,7 @@ pygame.display.set_caption('Space Invader Clone')
 icon = pygame.image.load('Images/SolarSystemIcon.png')
 pygame.display.set_icon(icon)
 
-# Background Sound (Uncomment line 37-38 for background music)
+# Background Sound (Uncomment next 2 lines for background music)
 # mixer.music.load('Sounds/MusicForLvl.wav')
 # mixer.music.play(-1)
 
@@ -90,11 +90,13 @@ def resetGame():
   for i in range(numEnemies):
     enemies[i].x = random.randint(5, 729)
     enemies[i].y = random.randint(5, 225)
-  
+
+# Creates a time object that will take care of the FPS 
+FPS = 140
+fpsClock = pygame.time.Clock()
 
 # Game Loop
 while not done:
-  pygame.time.delay(5)
   # Set Background Image
   screen.blit(background, (0, 0))
 
@@ -205,6 +207,9 @@ while not done:
 
   # Updates the display*
   pygame.display.update()
+  
+  # Pauses in order to keep the game at a constant speed
+  fpsClock.tick(FPS)
 
 # Finish and exit game
 pygame.quit()
